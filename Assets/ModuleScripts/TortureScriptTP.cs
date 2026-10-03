@@ -7,7 +7,6 @@ using UnityEngine;
 public class TortureScriptTP : TPScript<TortureScript>
 {
     private string TwitchHelpMessage = "<!{0} cycle [delay]> to press each tile in reading order once, with given delay; the delay can be in decimal form, e.g. 2.47. <!{0} <16 digits>> to construct the array for which to press each position in reading order that number of times. <!{0} [coordinate]> to press that specific coordinate, with the column being specified by letters, with the column after Z being AA, and the row being specified by a number. The first command type is not chainable, nor can you use both types of commands in one, however the second command type can have multiple coordinates separated by spaces. <!{0} <16 numbers separated by spaces>> to also construct a more precise array for which to press the buttons, similar to the first command. <!{0} (resize|setsize) [height] [width]> to resize the grid, and reset all values. However, width * height must be at least 9. This command is disallowed in a mission.";
-    private int _offset = 40; // Offset multiplier
 
     public override IEnumerator ForceSolve()
     {
@@ -156,7 +155,7 @@ public class TortureScriptTP : TPScript<TortureScript>
                     Module.MaxAffected = Mathf.Clamp(Module.Settings.MaxAffected, Mathf.Max((int)(Module.GridSize / 1.5f), Module.MinAffected), Module.GridSize);
 
                     Module.GenerateGrid(Module.Modulus);
-                    yield return AwardPointsOnSolve(GetOffsetScore(_offset, Module.GridSize));
+                    yield return AwardPointsOnSolve(GetOffsetScore(Module.GridSize, Module.Modulus));
                 }
                 else
                     yield return "sendtochaterror The grid size must be at least 9 tiles.";
@@ -166,9 +165,30 @@ public class TortureScriptTP : TPScript<TortureScript>
             yield return "sendtochaterror The module did not detect any valid command formats. Check your command.";
     }
 
-    private static int GetOffsetScore(int offset, int gridSize)
+    private static int GCD(int a, int b)
     {
-        return Mathf.RoundToInt((Mathf.Pow(gridSize / 16f, 3) - 1) * offset);
+        if (b == 0) return a;
+
+        return GCD(b, a % b);
+    }
+
+    private static int Totient(int x)
+    {
+        int cnt = 0;
+
+        for (int i = 1; i < x; i++)
+            if (GCD(x, i) == 1)
+                cnt++;
+
+        return cnt;
+    }
+
+    private static int GetOffsetScore(int gridSize, int modulus)
+    {
+        return Mathf.RoundToInt(
+            5 * (gridSize - 3 * Mathf.Sqrt(gridSize) + 8)
+            * (0.1f * Totient(modulus) / modulus + 1.6f * (1 - (float)Totient(modulus) / modulus))
+        ) - 60;
     }
 
     public void UpdateHelpMessage(int gridSize)
