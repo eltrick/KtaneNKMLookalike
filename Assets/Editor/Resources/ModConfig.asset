@@ -19,6 +19,6 @@ MonoBehaviour:
 
 
     Module ID: TortureModule'
-  version: 0.89.0
+  version: 0.90.0
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 9266cb7a1179f4d4a92b1fb31dcd1706, type: 3}

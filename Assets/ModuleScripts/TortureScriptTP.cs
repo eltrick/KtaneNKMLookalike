@@ -36,6 +36,7 @@ public class TortureScriptTP : TPScript<TortureScript>
         yield return null;
         if (Regex.IsMatch(command, "CYCLE [0-9]+(\\.[0-9]+)?"))
         {
+            yield return "solve";
             float delay = float.Parse(Regex.Match(command, "[0-9]+(\\.[0-9]+)?").Value);
             for(int i = 0; i < Module._grid.Length; i++)
             {
@@ -45,6 +46,8 @@ public class TortureScriptTP : TPScript<TortureScript>
             }
         }
         else if (Regex.IsMatch(command, "[0-9]{" + Module.GridSize.ToString() + "}") && Module.Modulus <= 10)
+        {
+            yield return "solve";
             for (int i = 0; i < Module._grid.Length; i++)
                 for (int j = 0; j < int.Parse(command[i].ToString()) % Module.Modulus; j++)
                 {
@@ -52,8 +55,10 @@ public class TortureScriptTP : TPScript<TortureScript>
                     yield return new WaitForSeconds(.1f / Mathf.Pow(Module.GridSize / 16f, 1.5f));
                     yield return "trycancel";
                 }
+        }
         else if (Regex.IsMatch(command, "([0-9]+\\s){" + (Module.GridSize - 1).ToString() + "}[0-9]+"))
         {
+            yield return "solve";
             string[] numbers = command.Split(" ");
             float time = 0;
             int p = 0;
@@ -94,6 +99,7 @@ public class TortureScriptTP : TPScript<TortureScript>
         }
         else if (Regex.IsMatch(command, @"(([A-Z])+([0-9])+\s*)+"))
         {
+            yield return "solve";
             string[] presses = command.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             for (int i = 0; i < presses.Length; i++)
